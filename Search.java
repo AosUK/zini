@@ -1,8 +1,8 @@
 import java.util.*;
 public class Search {
-    static int maxDepth = 2;
+    static int maxDepth =4;
 
-    public static void bfs(int[][] gameplayGrid, int[][] mineGrid, int[][] numericalGrid, List<String> bestActions, int maxDepth) {
+    public static void bfs(int[][] gameplayGrid, int[][] mineGrid, int[][] numericalGrid,int[][] bv3Grid, List<String> bestActions, int maxDepth) {
         Queue<State> queue = new LinkedList<>();
         Map<String, Integer> visitedStates = new HashMap<>();
     
@@ -14,15 +14,13 @@ public class Search {
         List<String> bestMoves = new ArrayList<>(); 
     
     
-        int[][] bv3Grid = zini.generateBv3Grid(gameplayGrid, numericalGrid);
-    
         while (!queue.isEmpty()) {
             State currentState = queue.poll();
             int[][] currentGrid = currentState.grid;
             List<String> currentActions = currentState.actions;
     
        
-            if (zini.isComplete(currentGrid, mineGrid)) {
+            if (zini.isComplete(currentGrid,bv3Grid)) {
                 bestActions.clear();
                 bestActions.addAll(currentActions);
                 return;

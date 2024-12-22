@@ -1,27 +1,27 @@
 import java.util.Arrays;
 import java.util.List;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class zini {
     public static int bv3; 
 
     public static void main(String[] args) {
-        String input = "3/3/000010000";
+        String input = "9/9/001000100010010000010010000001001000000010000000001000000000000000000000000000000";
         int[][] mineGrid = generateMineGrid(input);
         int[][] numericalGrid = generateNumericalGrid(mineGrid);
         int rows = mineGrid.length;
         int cols = mineGrid[0].length;
         int[][] gameplayGrid = new int[rows][cols];
         closeGameplayGrid(gameplayGrid);
-
         int[][] bv3Grid = generateBv3Grid(gameplayGrid, numericalGrid);
         closeGameplayGrid(gameplayGrid);
 
         List<String> bestActions = new ArrayList<>();
 
-        while (!isComplete(gameplayGrid, mineGrid)) {
+        while (!isComplete(gameplayGrid, bv3Grid)) {
             List<String> currentBestActions = new ArrayList<>();
-            Search.bfs(gameplayGrid, mineGrid, numericalGrid, currentBestActions, Search.maxDepth);
+            Search.bfs(gameplayGrid, mineGrid, numericalGrid,bv3Grid, currentBestActions, Search.maxDepth);
 
             bestActions.addAll(currentBestActions);
 
@@ -39,19 +39,16 @@ public class zini {
             }
 
 
-            System.out.println("After iteration: ");
-            printGrid(gameplayGrid);
 
         }
-        System.out.println("The game is complete.");
-        System.out.println("Best actions taken: ");
+
         System.out.println(String.join("/", bestActions));
         System.out.println(bestActions.size());
     }
 
     public static int[][] generateBv3Grid(int[][] gameplayGrid, int[][] numericalGrid) {
-        int rows = gameplayGrid.length;
-        int cols = gameplayGrid[0].length;
+        int rows = numericalGrid.length;
+        int cols = numericalGrid[0].length;
         int[][] bv3Grid = new int[rows][cols];
         bv3 = 0;
         
@@ -63,23 +60,23 @@ public class zini {
 
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                if (gameplayGrid[y][x] == 0 && numericalGrid[y][x] == 0) {
+                if (numericalGrid[y][x] == 0 && gameplayGrid[y][x]==0) {
+                    openCell(y, x, gameplayGrid, numericalGrid);
                     bv3Grid[y][x] = 1; 
                     bv3++; 
-                    openCell(y, x, gameplayGrid, numericalGrid);
                 }
             }
         }
 
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                if (gameplayGrid[y][x] == 0 && numericalGrid[y][x] != -1) {
+                if (gameplayGrid[y][x] == 0 && numericalGrid[y][x] >0) {
+                    openCell(y, x, gameplayGrid, numericalGrid);
                     bv3Grid[y][x] = 1;
                     bv3++;
                 }
             }
         }
-
         return bv3Grid;
     }
 
@@ -183,10 +180,10 @@ public class zini {
         return sb.toString();
     }
 
-    public static boolean isComplete(int[][] gameplayGrid, int[][] mineGrid) {
+    public static boolean isComplete(int[][] gameplayGrid, int[][] bv3Grid) {
         for (int y = 0; y < gameplayGrid.length; y++) {
             for (int x = 0; x < gameplayGrid[0].length; x++) {
-                if (mineGrid[y][x] == 0 && gameplayGrid[y][x] != 1) {
+                if (bv3Grid[y][x] == 1 && gameplayGrid[y][x] != 1) {
                     return false;
                 }
             }
