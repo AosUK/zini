@@ -3,7 +3,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class zini {
-    public static int bv3;
+    public static int bv3; 
 
     public static void main(String[] args) {
         String input = "3/3/000010000";
@@ -18,17 +18,42 @@ public class zini {
         closeGameplayGrid(gameplayGrid);
 
         List<String> bestActions = new ArrayList<>();
-        Search.bfs(gameplayGrid, mineGrid, numericalGrid,bestActions);
+
+        while (!isComplete(gameplayGrid, mineGrid)) {
+            List<String> currentBestActions = new ArrayList<>();
+            Search.bfs(gameplayGrid, mineGrid, numericalGrid, currentBestActions, Search.maxDepth);
+
+            bestActions.addAll(currentBestActions);
+
+
+            for (String action : currentBestActions) {
+                String[] parts = action.substring(2, action.length() - 1).split(",");
+                int x = Integer.parseInt(parts[0]);
+                int y = Integer.parseInt(parts[1]);
+
+                if (action.startsWith("R")) {
+                    Rclick(y, x, gameplayGrid); 
+                } else if (action.startsWith("L")) {
+                    click(y, x, gameplayGrid, numericalGrid); 
+                }
+            }
+
+
+            System.out.println("After iteration: ");
+            printGrid(gameplayGrid);
+
+        }
+        System.out.println("The game is complete.");
+        System.out.println("Best actions taken: ");
         System.out.println(String.join("/", bestActions));
         System.out.println(bestActions.size());
-
     }
 
     public static int[][] generateBv3Grid(int[][] gameplayGrid, int[][] numericalGrid) {
         int rows = gameplayGrid.length;
         int cols = gameplayGrid[0].length;
         int[][] bv3Grid = new int[rows][cols];
-        bv3 = 0; 
+        bv3 = 0;
         
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
@@ -41,7 +66,7 @@ public class zini {
                 if (gameplayGrid[y][x] == 0 && numericalGrid[y][x] == 0) {
                     bv3Grid[y][x] = 1; 
                     bv3++; 
-                    openCell(y, x, gameplayGrid, numericalGrid); 
+                    openCell(y, x, gameplayGrid, numericalGrid);
                 }
             }
         }
@@ -138,7 +163,6 @@ public class zini {
         int solvedCount = 0;
         int rows = bv3Grid.length;
         int cols = bv3Grid[0].length;
-
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
                 if (bv3Grid[y][x] == 1 && gameplayGrid[y][x] == 1) {
